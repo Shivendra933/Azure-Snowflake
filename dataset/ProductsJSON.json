@@ -1,0 +1,32 @@
+{
+	"name": "ProductsJSON",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureDataLakeStorage1",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "products.json",
+				"fileSystem": "raw"
+			}
+		},
+		"schema": {
+			"type": "object",
+			"properties": {
+				"ProductID": {
+					"type": "string"
+				},
+				"ProductName": {
+					"type": "string"
+				},
+				"Category": {
+					"type": "string"
+				}
+			}
+		}
+	}
+}
