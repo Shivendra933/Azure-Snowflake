@@ -7,7 +7,7 @@
 				"type": "ForEach",
 				"dependsOn": [
 					{
-						"activity": "Get Metadata1",
+						"activity": "GetFileList",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -97,7 +97,7 @@
 				}
 			},
 			{
-				"name": "Get Metadata1",
+				"name": "GetFileList",
 				"type": "GetMetadata",
 				"dependsOn": [],
 				"policy": {
@@ -120,6 +120,10 @@
 							"directory": {
 								"value": "@pipeline().parameters.p_srcDirr",
 								"type": "Expression"
+							},
+							"fileName": {
+								"value": "@string('')",
+								"type": "Expression"
 							}
 						}
 					},
@@ -128,6 +132,7 @@
 					],
 					"storeSettings": {
 						"type": "AzureBlobFSReadSettings",
+						"recursive": true,
 						"enablePartitionDiscovery": false
 					},
 					"formatSettings": {
