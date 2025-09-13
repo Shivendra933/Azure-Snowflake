@@ -3,159 +3,151 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "ForEach1",
+				"name": "ForEachFiles",
 				"type": "ForEach",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "Get Metadata1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"userProperties": [],
 				"typeProperties": {
 					"items": {
-						"value": "@pipeline().parameters.FileList",
+						"value": "@activity('GetFileList').output.childItems",
 						"type": "Expression"
 					},
 					"isSequential": true,
 					"activities": [
 						{
-							"name": "If Condition1",
-							"type": "IfCondition",
+							"name": "Copy data to bronze",
+							"type": "Copy",
 							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
 							"userProperties": [],
 							"typeProperties": {
-								"expression": {
-									"value": "@endswith(item(), '.csv')",
-									"type": "Expression"
+								"source": {
+									"type": "BinarySource",
+									"storeSettings": {
+										"type": "AzureBlobFSReadSettings",
+										"recursive": true
+									},
+									"formatSettings": {
+										"type": "BinaryReadSettings"
+									}
 								},
-								"ifFalseActivities": [
-									{
-										"name": "CopyJSON",
-										"type": "Copy",
-										"dependsOn": [],
-										"policy": {
-											"timeout": "0.12:00:00",
-											"retry": 0,
-											"retryIntervalInSeconds": 30,
-											"secureOutput": false,
-											"secureInput": false
-										},
-										"userProperties": [],
-										"typeProperties": {
-											"source": {
-												"type": "JsonSource",
-												"storeSettings": {
-													"type": "AzureBlobFSReadSettings",
-													"recursive": true,
-													"enablePartitionDiscovery": false
-												},
-												"formatSettings": {
-													"type": "JsonReadSettings"
-												}
-											},
-											"sink": {
-												"type": "BinarySink",
-												"storeSettings": {
-													"type": "AzureBlobFSWriteSettings"
-												}
-											},
-											"enableStaging": false
-										},
-										"inputs": [
-											{
-												"referenceName": "Json1",
-												"type": "DatasetReference",
-												"parameters": {
-													"FileName": {
-														"value": "@pipeline().parameters.FileList",
-														"type": "Expression"
-													}
-												}
-											}
-										],
-										"outputs": [
-											{
-												"referenceName": "Binary1",
-												"type": "DatasetReference",
-												"parameters": {
-													"": {
-														"value": "@pipeline().parameters.FileList",
-														"type": "Expression"
-													}
-												}
-											}
-										]
+								"sink": {
+									"type": "BinarySink",
+									"storeSettings": {
+										"type": "AzureBlobFSWriteSettings"
 									}
-								],
-								"ifTrueActivities": [
-									{
-										"name": "CopyCSV",
-										"type": "Copy",
-										"dependsOn": [],
-										"policy": {
-											"timeout": "0.12:00:00",
-											"retry": 0,
-											"retryIntervalInSeconds": 30,
-											"secureOutput": false,
-											"secureInput": false
+								},
+								"enableStaging": false
+							},
+							"inputs": [
+								{
+									"referenceName": "srcdataset",
+									"type": "DatasetReference",
+									"parameters": {
+										"fileSystem": {
+											"value": "@pipeline().parameters.p_srcCont",
+											"type": "Expression"
 										},
-										"userProperties": [],
-										"typeProperties": {
-											"source": {
-												"type": "DelimitedTextSource",
-												"storeSettings": {
-													"type": "AzureBlobFSReadSettings",
-													"recursive": true,
-													"enablePartitionDiscovery": false
-												},
-												"formatSettings": {
-													"type": "DelimitedTextReadSettings"
-												}
-											},
-											"sink": {
-												"type": "BinarySink",
-												"storeSettings": {
-													"type": "AzureBlobFSWriteSettings"
-												}
-											},
-											"enableStaging": false
+										"directory": {
+											"value": "@pipeline().parameters.p_srcDirr",
+											"type": "Expression"
 										},
-										"inputs": [
-											{
-												"referenceName": "Raw_DS",
-												"type": "DatasetReference",
-												"parameters": {
-													"FileName": {
-														"value": "@pipeline().parameters.FileList",
-														"type": "Expression"
-													}
-												}
-											}
-										],
-										"outputs": [
-											{
-												"referenceName": "Binary1",
-												"type": "DatasetReference",
-												"parameters": {
-													"": {
-														"value": "@pipeline().parameters.FileList",
-														"type": "Expression"
-													}
-												}
-											}
-										]
+										"fileName": {
+											"value": "@item().name",
+											"type": "Expression"
+										}
 									}
-								]
-							}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "sinkdataset",
+									"type": "DatasetReference",
+									"parameters": {
+										"fileSystem": {
+											"value": "@pipeline().parameters.p_bronzeCont",
+											"type": "Expression"
+										},
+										"directory": {
+											"value": "@pipeline().parameters.p_bronzeDir",
+											"type": "Expression"
+										},
+										"fileName": {
+											"value": "@item().name",
+											"type": "Expression"
+										}
+									}
+								}
+							]
 						}
 					]
+				}
+			},
+			{
+				"name": "Get Metadata1",
+				"type": "GetMetadata",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "srcdataset",
+						"type": "DatasetReference",
+						"parameters": {
+							"fileSystem": {
+								"value": "@pipeline().parameters.p_srcCont",
+								"type": "Expression"
+							},
+							"directory": {
+								"value": "@pipeline().parameters.p_srcDirr",
+								"type": "Expression"
+							}
+						}
+					},
+					"fieldList": [
+						"childItems"
+					],
+					"storeSettings": {
+						"type": "AzureBlobFSReadSettings",
+						"enablePartitionDiscovery": false
+					},
+					"formatSettings": {
+						"type": "BinaryReadSettings"
+					}
 				}
 			}
 		],
 		"parameters": {
-			"FileList": {
-				"type": "array",
-				"defaultValue": [
-					"customers.csv",
-					"transactions.csv",
-					"weblogs.json"
-				]
+			"p_srcCont": {
+				"type": "string"
+			},
+			"p_srcDirr": {
+				"type": "string"
+			},
+			"p_bronzeCont": {
+				"type": "string"
+			},
+			"p_bronzeDir": {
+				"type": "string"
 			}
 		},
 		"annotations": []
