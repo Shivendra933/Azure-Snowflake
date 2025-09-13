@@ -142,7 +142,7 @@
 													"type": "Expression"
 												},
 												"directory": {
-													"value": "@string('')",
+													"value": "@pipeline().parameters.p_srcDirr",
 													"type": "Expression"
 												},
 												"fileName": {
@@ -162,7 +162,7 @@
 													"type": "Expression"
 												},
 												"directory": {
-													"value": "@string('')",
+													"value": "@pipeline().parameters.p_bronzeDir",
 													"type": "Expression"
 												},
 												"fileName": {
@@ -198,7 +198,7 @@
 										"type": "Expression"
 									},
 									"directory": {
-										"value": "@string('')",
+										"value": "@pipeline().parameters.p_srcDirr",
 										"type": "Expression"
 									},
 									"fileName": {
